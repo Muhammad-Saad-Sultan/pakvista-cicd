@@ -1,0 +1,49 @@
+# ==============================================================
+# CD Pipeline – Development Environment
+# File:    .github/workflows/cd-dev.yml
+# Trigger: Push / merge to the 'develop' branch
+# Purpose: Deploy the latest dev image to the Render development
+#          service by sending an HTTP POST to the deploy hook URL.
+#          No Docker build or push steps are included here.
+# ==============================================================
+
+name: CD Dev
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  cd-dev:
+    name: CD / cd-dev
+    runs-on: ubuntu-latest
+
+    # Declare the GitHub Environment so that environment-level secrets
+    # (RENDER_DEPLOY_HOOK_DEV_URL) are injected into this job.
+    environment: development
+
+    steps:
+
+      # ── Step 1: Checkout ──────────────────────────────────────
+      # Check out the repository code (required for environment resolution)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ── Step 2: Declare Environment ───────────────────────────
+      # The 'environment: development' key above already injects the
+      # environment-scoped secrets. No additional action needed here.
+      # This echo step makes the declared environment visible in logs.
+      - name: Confirm Environment
+        run: echo "Deploying to GitHub Environment → development"
+
+      # ── Step 3: Deploy to Render (Development) ────────────────
+      # Send an HTTP POST request to the Render deploy hook URL.
+      # Render will pull the latest :dev-latest image and redeploy.
+      - name: Trigger Render Deploy – Development
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV_URL }}"
+
+      # ── Step 4: Confirm Deployment ────────────────────────────
+      # Output a timestamped confirmation message as the final step.
+      - name: Confirm Deployment
+        run: echo "Deployment to development triggered at $(date)"

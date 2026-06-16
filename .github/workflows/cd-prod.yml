@@ -1,0 +1,49 @@
+# ==============================================================
+# CD Pipeline – Production Environment
+# File:    .github/workflows/cd-prod.yml
+# Trigger: Push / merge to the 'main' branch
+# Purpose: Deploy the latest production image to the Render
+#          production service by sending an HTTP POST to the
+#          deploy hook URL.
+#          No Docker build or push steps are included here.
+# ==============================================================
+
+name: CD Prod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  cd-prod:
+    name: CD / cd-prod
+    runs-on: ubuntu-latest
+
+    # Declare the GitHub Environment so that environment-level secrets
+    # (RENDER_DEPLOY_HOOK_PROD_URL) are injected into this job.
+    environment: production
+
+    steps:
+
+      # ── Step 1: Checkout ──────────────────────────────────────
+      # Check out the repository code (required for environment resolution)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ── Step 2: Declare Environment ───────────────────────────
+      # The 'environment: production' key above already injects the
+      # environment-scoped secrets. This echo makes it visible in logs.
+      - name: Confirm Environment
+        run: echo "Deploying to GitHub Environment → production"
+
+      # ── Step 3: Deploy to Render (Production) ─────────────────
+      # Send an HTTP POST request to the Render production deploy hook URL.
+      # Render will pull the latest :prod-latest image and redeploy.
+      - name: Trigger Render Deploy – Production
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PROD_URL }}"
+
+      # ── Step 4: Confirm Deployment ────────────────────────────
+      # Output a timestamped confirmation message as the final step.
+      - name: Confirm Deployment
+        run: echo "Deployment to production triggered at $(date)"

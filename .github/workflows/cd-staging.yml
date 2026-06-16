@@ -1,0 +1,48 @@
+# ==============================================================
+# CD Pipeline – Staging Environment
+# File:    .github/workflows/cd-staging.yml
+# Trigger: Push / merge to the 'staging' branch
+# Purpose: Deploy the latest staging image to the Render staging
+#          service by sending an HTTP POST to the deploy hook URL.
+#          No Docker build or push steps are included here.
+# ==============================================================
+
+name: CD Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  cd-staging:
+    name: CD / cd-staging
+    runs-on: ubuntu-latest
+
+    # Declare the GitHub Environment so that environment-level secrets
+    # (RENDER_DEPLOY_HOOK_STAGING_URL) are injected into this job.
+    environment: staging
+
+    steps:
+
+      # ── Step 1: Checkout ──────────────────────────────────────
+      # Check out the repository code (required for environment resolution)
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ── Step 2: Declare Environment ───────────────────────────
+      # The 'environment: staging' key above already injects the
+      # environment-scoped secrets. This echo makes it visible in logs.
+      - name: Confirm Environment
+        run: echo "Deploying to GitHub Environment → staging"
+
+      # ── Step 3: Deploy to Render (Staging) ────────────────────
+      # Send an HTTP POST request to the Render staging deploy hook URL.
+      # Render will pull the latest :staging-latest image and redeploy.
+      - name: Trigger Render Deploy – Staging
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_STAGING_URL }}"
+
+      # ── Step 4: Confirm Deployment ────────────────────────────
+      # Output a timestamped confirmation message as the final step.
+      - name: Confirm Deployment
+        run: echo "Deployment to staging triggered at $(date)"
