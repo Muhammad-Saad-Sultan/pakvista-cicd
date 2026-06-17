@@ -271,6 +271,9 @@ footer {
   margin-top: 3rem;
   font-size: 0.9rem;
 }
+footer p {
+  color: var(--color-white);
+}
 footer a {
   color: var(--color-accent);
 }
