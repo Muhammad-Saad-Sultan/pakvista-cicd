@@ -68,6 +68,9 @@ h3 {
   color: var(--color-secondary);
   margin-bottom: 0.4rem;
 }
+footer p {
+  color: white;
+}
 p {
   margin-bottom: 1rem;
   color: var(--color-text);
@@ -270,9 +273,6 @@ footer {
   padding: 1.5rem 1rem;
   margin-top: 3rem;
   font-size: 0.9rem;
-}
-footer p {
-  color: var(--color-white);
 }
 footer a {
   color: var(--color-accent);
